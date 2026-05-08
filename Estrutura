@@ -1,0 +1,11 @@
+projeto-recomendador/
+│
+├── README.md
+├── requirements.txt
+├── app.py
+├── dados/
+│   └── filmes.py
+├── backend/
+│   └── recomendacao.py
+└── frontend/
+    └── interface.py
