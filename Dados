@@ -1,0 +1,27 @@
+# LEGENDA DOS GÊNEROS
+# [Ação, Romance, Ficção, Comédia, Terror, Infantil]
+
+filmes = {
+    "Matrix": [1, 0, 1, 0, 0, 0],
+    "John Wick": [1, 0, 0, 0, 0, 0],
+    "Interestelar": [0, 0, 1, 0, 0, 0],
+    "Todo Mundo Odeia o Chris": [0, 0, 0, 1, 0, 0],
+    "Vingadores": [1, 0, 1, 0, 0, 0],
+    "Invocação do Mal": [0, 0, 0, 0, 1, 0],
+    "As Branquelas": [0, 0, 0, 1, 0, 0],
+    "A Proposta": [0, 1, 0, 0, 0, 0],
+    "Gravidade": [0, 0, 1, 0, 0, 0],
+    "It a Coisa": [0, 0, 0, 0, 1, 0],
+    "A Freira": [0, 0, 0, 0, 1, 0],
+    "Carros": [0, 0, 0, 0, 0, 1],
+    "Toy Story": [0, 0, 0, 0, 0, 1],
+    "Rio": [0, 0, 0, 0, 0, 1],
+    "Alvin e os Esquilos": [0, 0, 0, 1, 0, 1],
+    "Como se Fosse a Primeira Vez": [0, 1, 0, 1, 0, 0],
+    "Diário de uma Paixão": [0, 1, 0, 0, 0, 0],
+    "Missão Impossível": [1, 0, 0, 0, 0, 0],
+    "Missão Quase Impossível": [1, 0, 0, 1, 0, 0],
+    "Jurassic World Rebirth": [1, 0, 1, 0, 0, 0],
+}
+
+generos = ["Ação", "Romance", "Ficção", "Comédia", "Terror", "Infantil"]
