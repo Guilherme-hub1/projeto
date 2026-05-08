@@ -1,0 +1,58 @@
+import ipywidgets as widgets
+from IPython.display import display, HTML
+
+from dados.filmes import filmes
+from backend.recomendacao import recomendar_filmes
+
+# FRONT-END
+# Dropdown (lista suspensa) para escolher o filme
+menu_filmes = widgets.Dropdown(
+    options=list(filmes.keys()),
+    description='Filme:',
+    style={'description_width': 'initial'},
+    layout=widgets.Layout(width='400px')
+)
+
+# Botão para gerar recomendações
+botao = widgets.Button(
+    description="Recomendar",
+    button_style='success',
+    icon='film'
+)
+
+# Área onde os resultados serão exibidos
+saida = widgets.Output()
+
+# FUNÇÃO CHAMADA QUANDO O BOTÃO É CLICADO
+def clique(b):
+    with saida:
+        saida.clear_output()
+        filme = menu_filmes.value
+        resultados = recomendar_filmes(filme)
+        display(HTML(f"""
+        <h2 style='color:darkblue;'>
+        Filmes parecidos com {filme}
+        </h2>
+        """))
+
+        for item in resultados:
+            nome_filme = item["filme"]
+            porcentagem = item["score"] * 100
+            generos_texto = ", ".join(item["generos"])
+            display(HTML(f"""
+            <div style="
+                background-color:#f4f4f4;
+                padding:10px;
+                margin:10px 0;
+                border-radius:10px;
+            ">
+                <h3>{nome_filme}</h3>
+                <p><b>Compatibilidade:</b> {porcentagem:.0f}%</p>
+                <p><b>Gêneros em comum:</b> {generos_texto}</p>
+            </div>
+            """))
+
+botao.on_click(clique)
+
+def iniciar_interface():
+    display(menu_filmes, botao, saida)
