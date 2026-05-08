@@ -1,4 +1,4 @@
-# 🎬 Sistema de Recomendação de Filmes
+# Sistema de Recomendação de Filmes
 
 Projeto desenvolvido em Python utilizando:
 - NumPy
