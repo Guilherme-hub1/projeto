@@ -1,81 +1,171 @@
 import numpy as np # Para trabalhar com arrays numéricos
+import pandas as pd # Para organizar os dados em tabela
 from sklearn.metrics.pairwise import cosine_similarity # Para calcular similaridade entre vetores
 import ipywidgets as widgets # Para criar interface interativa (dropdown, botão, etc.)
-from IPython.display import display # Para exibir os componentes na tela
+from IPython.display import display, HTML # Para exibir os componentes na tela
 
+# LEGENDA DOS GÊNEROS
+# [Ação, Romance, Ficção, Comédia, Terror, Infantil]
 # Base de dados
 filmes = {
-    "Matrix": [1, 0, 1, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
-    "John Wick": [1, 0, 0, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
-    "Interestelar": [0, 0, 1, 0, 0, 0], # Ação=0 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
-    "Todo Mundo Odeia o Chris": [0, 0, 0, 1, 0, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
-    "Vingadores": [1, 0, 1, 0, 0, 0],# Ação=1 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
-    "Invocação do Mal": [0, 0, 0, 0, 1, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=1 / Infantil= 0
-    "As Branquelas": [0, 0, 0, 1, 0, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
-    "A Proposta": [0, 1, 0, 0, 0, 0], # Ação=0 / Romance=1 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
-    "Gravidade": [0, 0, 1, 0, 0, 0], # Ação=0 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
-    "It a Coisa": [0, 0, 0, 0, 1, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=1 / Infantil= 0
-    "A Freira": [0, 0, 0, 0, 1, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=1 / Infantil= 0
-    "Carros": [0, 0, 0, 0, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 1
-    "Toy Story": [0, 0, 0, 0, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 1
-    "Rio": [0, 0, 0, 0, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 1
-    "Alvin e os Esquilos": [0, 0, 0, 1, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 1
-    "Como se Fosse a Primeira Vez": [0, 1, 0, 1, 0, 0], # Ação=0 / Romance=1 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
-    "Diário de uma Paixão": [0, 1, 0, 0, 0, 0], # Ação=0 / Romance=1 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
-    "Missão Impossível": [1, 0, 0, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
-    "Missão Quase Impossível": [1, 0, 0, 1, 0, 0], # Ação=1 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
-    "Jurassic World Rebirth": [1, 0, 1, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
+    "Matrix": [1, 0, 1, 0, 0, 0],
+    "John Wick": [1, 0, 0, 0, 0, 0],
+    "Interestelar": [0, 0, 1, 0, 0, 0],
+    "Todo Mundo Odeia o Chris": [0, 0, 0, 1, 0, 0],
+    "Vingadores": [1, 0, 1, 0, 0, 0],
+    "Invocação do Mal": [0, 0, 0, 0, 1, 0],
+    "As Branquelas": [0, 0, 0, 1, 0, 0],
+    "A Proposta": [0, 1, 0, 0, 0, 0],
+    "Gravidade": [0, 0, 1, 0, 0, 0],
+    "It a Coisa": [0, 0, 0, 0, 1, 0],
+    "A Freira": [0, 0, 0, 0, 1, 0],
+    "Carros": [0, 0, 0, 0, 0, 1],
+    "Toy Story": [0, 0, 0, 0, 0, 1],
+    "Rio": [0, 0, 0, 0, 0, 1],
+    "Alvin e os Esquilos": [0, 0, 0, 1, 0, 1],
+    "Como se Fosse a Primeira Vez": [0, 1, 0, 1, 0, 0],
+    "Diário de uma Paixão": [0, 1, 0, 0, 0, 0],
+    "Missão Impossível": [1, 0, 0, 0, 0, 0],
+    "Missão Quase Impossível": [1, 0, 0, 1, 0, 0],
+    "Jurassic World Rebirth": [1, 0, 1, 0, 0, 0],
 }
+# Lista dos gêneros
+generos = ["Ação", "Romance", "Ficção", "Comédia", "Terror", "Infantil"]
 
-nomes = list(filmes.keys()) # Lista com os nomes dos filmes
-vetores = np.array(list(filmes.values())) # Matriz com os vetores dos filmes
+# Cria DataFrame para organizar melhor os dados
+df_filmes = pd.DataFrame(filmes).T
+df_filmes.columns = generos
 
-# Função do BACK-END
-def recomendar_filmes(filme_escolhido):
+# Lista com os nomes dos filmes
+nomes = list(filmes.keys())
 
-    vec_usuario = np.array(filmes[filme_escolhido]).reshape(1,-1) # Pega o vetor do filme escolhido e transforma em matriz
-    similaridades = cosine_similarity(vec_usuario, vetores)[0] # Calcula a similaridade entre o filme escolhido e todos os outros
+# Matriz com os vetores dos filmes
+vetores = np.array(list(filmes.values()))
 
-    lista = list(zip(nomes, similaridades)) # Junta nome do filme com sua similaridade
-    ordenado = sorted(lista, key=lambda x: x[1], reverse=True) # Ordena do mais parecido para o menos parecido
+# FUNÇÃO PARA DESCOBRIR GÊNEROS EM COMUM
+def generos_em_comum(vetor1, vetor2):
+
+    comuns = []
+
+    for i in range(len(generos)):
+
+        # Verifica se os dois filmes possuem o mesmo gênero
+        if vetor1[i] == 1 and vetor2[i] == 1:
+            comuns.append(generos[i])
+
+    return comuns
+
+# FUNÇÃO DO BACK-END
+def recomendar_filmes(filme_escolhido, top_n=5):
+
+    # Verifica se o filme existe
+    if filme_escolhido not in filmes:
+        return []
+
+    # Pega o vetor do filme escolhido e transforma em matriz
+    vetor_filme_escolhido = np.array(filmes[filme_escolhido]).reshape(1,-1)
+
+    # Calcula a similaridade entre o filme escolhido e todos os outros
+    similaridades = cosine_similarity(vetor_filme_escolhido, vetores)[0]
+
+    # Junta nome do filme com sua similaridade
+    lista = list(zip(nomes, similaridades))
+
+    # Ordena do mais parecido para o menos parecido
+    ordenado = sorted(lista, key=lambda x: x[1], reverse=True)
 
     recomendados = []
 
     # Remove o próprio filme da recomendação
+    # Também remove filmes com similaridade 0
     for filme, score in ordenado:
-        if filme != filme_escolhido:
-            recomendados.append((filme, score))
 
-    return recomendados
+        if filme != filme_escolhido and score > 0:
 
+            # Descobre os gêneros em comum
+            comuns = generos_em_comum(
+                filmes[filme_escolhido],
+                filmes[filme]
+            )
+
+            recomendados.append({
+                "filme": filme,
+                "score": score,
+                "generos": comuns
+            })
+
+    # Retorna apenas os TOP N filmes
+    return recomendados[:top_n]
 
 # FRONT-END
+
 # Dropdown (lista suspensa) para escolher o filme
 menu_filmes = widgets.Dropdown(
     options=nomes,
-    description='Filme:'
+    description='Filme:',
+    style={'description_width': 'initial'},
+    layout=widgets.Layout(width='400px')
 )
 
 # Botão para gerar recomendações
-botao = widgets.Button(description="Recomendar")
-saida = widgets.Output() # Área onde os resultados serão exibidos
+botao = widgets.Button(
+    description="Recomendar",
+    button_style='success',
+    icon='film'
+)
 
-# Função chamada quando o botão é clicado
+# Área onde os resultados serão exibidos
+saida = widgets.Output()
+
+# FUNÇÃO CHAMADA QUANDO O BOTÃO É CLICADO
 def clique(b):
 
     # Usa a área de saída
     with saida:
+
+        # Limpa resultados anteriores
         saida.clear_output()
 
-        filme = menu_filmes.value # Pega o filme selecionado
-        resultados = recomendar_filmes(filme)  # Chama a função de recomendação
+        # Pega o filme selecionado
+        filme = menu_filmes.value
 
-        print(f"\n🎬 Filmes parecidos com {filme}:\n") # Exibe o título
+        # Chama a função de recomendação
+        resultados = recomendar_filmes(filme)
 
-        # Mostra os 5 mais similares
-        for filme, score in resultados[:5]:
-            print(f"{filme} → Similaridade: {score:.2f}")
+        # Título estilizado
+        display(HTML(f"""
+        <h2 style='color:darkblue;'>
+        Filmes parecidos com {filme}
+        </h2>
+        """))
 
+        # Exibe os resultados
+        for item in resultados:
+
+            nome_filme = item["filme"]
+
+            # Converte similaridade em porcentagem
+            porcentagem = item["score"] * 100
+
+            # Junta os gêneros em comum
+            generos_texto = ", ".join(item["generos"])
+
+            # Mostra na tela
+            display(HTML(f"""
+            <div style="
+                background-color:#f4f4f4;
+                padding:10px;
+                margin:10px 0;
+                border-radius:10px;
+            ">
+                <h3>{nome_filme}</h3>
+                <p><b>Compatibilidade:</b> {porcentagem:.0f}%</p>
+                <p><b>Gêneros em comum:</b> {generos_texto}</p>
+            </div>
+            """))
+
+# Evento do botão
 botao.on_click(clique)
 
+# Exibe os componentes na tela
 display(menu_filmes, botao, saida)
