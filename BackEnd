@@ -1,0 +1,50 @@
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from dados.filmes import filmes, generos
+
+# Lista com os nomes dos filmes
+nomes = list(filmes.keys())
+
+# Matriz com os vetores dos filmes
+vetores = np.array(list(filmes.values()))
+
+# FUNÇÃO PARA DESCOBRIR GÊNEROS EM COMUM
+def generos_em_comum(vetor1, vetor2):
+    comuns = []
+    for i in range(len(generos)):
+        if vetor1[i] == 1 and vetor2[i] == 1:
+            comuns.append(generos[i])
+    return comuns
+
+# FUNÇÃO PRINCIPAL DE RECOMENDAÇÃO
+def recomendar_filmes(filme_escolhido, top_n=5):
+
+    if filme_escolhido not in filmes:
+        return []
+    vetor_filme_escolhido = np.array(
+        filmes[filme_escolhido]
+    ).reshape(1, -1)
+    similaridades = cosine_similarity(
+        vetor_filme_escolhido,
+        vetores
+    )[0]
+    lista = list(zip(nomes, similaridades))
+    ordenado = sorted(
+        lista,
+        key=lambda x: x[1],
+        reverse=True
+    )
+    recomendados = []
+    for filme, score in ordenado:
+        if filme != filme_escolhido and score > 0:
+            comuns = generos_em_comum(
+                filmes[filme_escolhido],
+                filmes[filme]
+            )
+            recomendados.append({
+                "filme": filme,
+                "score": score,
+                "generos": comuns
+            })
+
+    return recomendados[:top_n]
