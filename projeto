@@ -1,0 +1,81 @@
+import numpy as np # Para trabalhar com arrays numéricos
+from sklearn.metrics.pairwise import cosine_similarity # Para calcular similaridade entre vetores
+import ipywidgets as widgets # Para criar interface interativa (dropdown, botão, etc.)
+from IPython.display import display # Para exibir os componentes na tela
+
+# Base de dados
+filmes = {
+    "Matrix": [1, 0, 1, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
+    "John Wick": [1, 0, 0, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
+    "Interestelar": [0, 0, 1, 0, 0, 0], # Ação=0 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
+    "Todo Mundo Odeia o Chris": [0, 0, 0, 1, 0, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
+    "Vingadores": [1, 0, 1, 0, 0, 0],# Ação=1 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
+    "Invocação do Mal": [0, 0, 0, 0, 1, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=1 / Infantil= 0
+    "As Branquelas": [0, 0, 0, 1, 0, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
+    "A Proposta": [0, 1, 0, 0, 0, 0], # Ação=0 / Romance=1 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
+    "Gravidade": [0, 0, 1, 0, 0, 0], # Ação=0 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
+    "It a Coisa": [0, 0, 0, 0, 1, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=1 / Infantil= 0
+    "A Freira": [0, 0, 0, 0, 1, 0], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=1 / Infantil= 0
+    "Carros": [0, 0, 0, 0, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 1
+    "Toy Story": [0, 0, 0, 0, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 1
+    "Rio": [0, 0, 0, 0, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 1
+    "Alvin e os Esquilos": [0, 0, 0, 1, 0, 1], # Ação=0 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 1
+    "Como se Fosse a Primeira Vez": [0, 1, 0, 1, 0, 0], # Ação=0 / Romance=1 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
+    "Diário de uma Paixão": [0, 1, 0, 0, 0, 0], # Ação=0 / Romance=1 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
+    "Missão Impossível": [1, 0, 0, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=0 / Comédia=0 / Terror=0 / Infantil= 0
+    "Missão Quase Impossível": [1, 0, 0, 1, 0, 0], # Ação=1 / Romance=0 / Ficção=0 / Comédia=1 / Terror=0 / Infantil= 0
+    "Jurassic World Rebirth": [1, 0, 1, 0, 0, 0], # Ação=1 / Romance=0 / Ficção=1 / Comédia=0 / Terror=0 / Infantil= 0
+}
+
+nomes = list(filmes.keys()) # Lista com os nomes dos filmes
+vetores = np.array(list(filmes.values())) # Matriz com os vetores dos filmes
+
+# Função do BACK-END
+def recomendar_filmes(filme_escolhido):
+
+    vec_usuario = np.array(filmes[filme_escolhido]).reshape(1,-1) # Pega o vetor do filme escolhido e transforma em matriz
+    similaridades = cosine_similarity(vec_usuario, vetores)[0] # Calcula a similaridade entre o filme escolhido e todos os outros
+
+    lista = list(zip(nomes, similaridades)) # Junta nome do filme com sua similaridade
+    ordenado = sorted(lista, key=lambda x: x[1], reverse=True) # Ordena do mais parecido para o menos parecido
+
+    recomendados = []
+
+    # Remove o próprio filme da recomendação
+    for filme, score in ordenado:
+        if filme != filme_escolhido:
+            recomendados.append((filme, score))
+
+    return recomendados
+
+
+# FRONT-END
+# Dropdown (lista suspensa) para escolher o filme
+menu_filmes = widgets.Dropdown(
+    options=nomes,
+    description='Filme:'
+)
+
+# Botão para gerar recomendações
+botao = widgets.Button(description="Recomendar")
+saida = widgets.Output() # Área onde os resultados serão exibidos
+
+# Função chamada quando o botão é clicado
+def clique(b):
+
+    # Usa a área de saída
+    with saida:
+        saida.clear_output()
+
+        filme = menu_filmes.value # Pega o filme selecionado
+        resultados = recomendar_filmes(filme)  # Chama a função de recomendação
+
+        print(f"\n🎬 Filmes parecidos com {filme}:\n") # Exibe o título
+
+        # Mostra os 5 mais similares
+        for filme, score in resultados[:5]:
+            print(f"{filme} → Similaridade: {score:.2f}")
+
+botao.on_click(clique)
+
+display(menu_filmes, botao, saida)
